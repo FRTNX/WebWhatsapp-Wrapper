@@ -84,6 +84,7 @@ class Chat(WhatsappObjectWithId):
 class UserChat(Chat):
     def __init__(self, js_obj, driver=None):
         super(UserChat, self).__init__(js_obj, driver)
+        self.name = 'contact'
 
     def __repr__(self):
         safe_name = safe_str(self.name)
@@ -96,6 +97,7 @@ class UserChat(Chat):
 class BroadcastChat(Chat):
     def __init__(self, js_obj, driver=None):
         super(BroadcastChat, self).__init__(js_obj, driver)
+        self.name = 'contact'
 
     def __repr__(self):
         safe_name = safe_str(self.name)

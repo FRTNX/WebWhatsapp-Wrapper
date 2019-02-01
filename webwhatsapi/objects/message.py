@@ -3,6 +3,7 @@ from base64 import b64decode
 from datetime import datetime
 
 import os
+import json
 from typing import Union
 
 from ..helper import safe_str
@@ -54,25 +55,15 @@ class Message(WhatsappObject):
         """
         super(Message, self).__init__(js_obj, driver)
 
-        self.id = js_obj["id"]
-        self.type = js_obj["type"]
-        self.sender = Contact(js_obj["sender"], driver) if js_obj["sender"] else False
-        self.timestamp = datetime.fromtimestamp(js_obj["timestamp"])
-        self.chat_id = js_obj['chatId']
-
-        if js_obj["content"]:
-            self.content = js_obj["content"]
-            self.safe_content = safe_str(self.content[0:25]) + '...'
-        elif self.type == 'revoked':
-            self.content = ''
-            self.safe_content = '...'
+        self.json = js_obj
 
     def __repr__(self):
-        return "<Message - {type} from {sender} at {timestamp}: {content}>".format(
-            type=self.type,
-            sender=safe_str(self.sender.get_safe_name()),
-            timestamp=self.timestamp,
-            content=self.safe_content)
+        return json.dumps(self.json)
+        #return "<Message - {type} from {sender} at {timestamp}: {content}>".format(
+        #    type=self.type,
+        #    sender=safe_str(self.sender.get_safe_name()),
+        #    timestamp=self.timestamp,
+        #    content=self.safe_content)
 
 
 class MediaMessage(Message):

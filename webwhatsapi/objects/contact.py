@@ -1,3 +1,4 @@
+import logging
 from six import string_types
 
 from .whatsapp_object import WhatsappObjectWithId, driver_needed
@@ -10,6 +11,7 @@ class Contact(WhatsappObjectWithId):
     """
 
     def __init__(self, js_obj, driver=None):
+        logging.debug(js_obj)
         """
 
         :param js_obj:
@@ -17,6 +19,8 @@ class Contact(WhatsappObjectWithId):
         :type driver: WhatsAPIDriver
         """
         super(Contact, self).__init__(js_obj, driver)
+        self.short_name = 'Unknown'
+        self.is_business = False
         if 'shortName' in js_obj:
             self.short_name = js_obj["shortName"]
         if 'pushname' in js_obj:
@@ -45,6 +49,7 @@ class Contact(WhatsappObjectWithId):
         :rtype: String
 
         """
+        print(self._js_obj)
         name = (self.short_name or self.push_name or self.formatted_name)
         if (isinstance(name, string_types)):
             if self.is_business:
