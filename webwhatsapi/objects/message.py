@@ -76,6 +76,7 @@ class MediaMessage(Message):
     def __init__(self, js_obj, driver=None):
         super(MediaMessage, self).__init__(js_obj, driver)
 
+        self.json = self._js_obj
         self.size = self._js_obj["size"]
         self.mime = self._js_obj["mimetype"]
         if "caption" in self._js_obj:
@@ -96,12 +97,7 @@ class MediaMessage(Message):
         return filename
 
     def __repr__(self):
-        return "<MediaMessage - {type} from {sender} at {timestamp} ({filename})>".format(
-            type=self.type,
-            sender=safe_str(self.sender.get_safe_name()),
-            timestamp=self.timestamp,
-            filename=self.filename
-        )
+        return str(self.json)
 
 
 class MMSMessage(MediaMessage):
@@ -113,13 +109,10 @@ class MMSMessage(MediaMessage):
 
     def __init__(self, js_obj, driver=None):
         super(MMSMessage, self).__init__(js_obj, driver)
+        self.json = self._js_obj
 
     def __repr__(self):
-        return "<MMSMessage - {type} from {sender} at {timestamp}>".format(
-            type=self.type,
-            sender=safe_str(self.sender.get_safe_name()),
-            timestamp=self.timestamp
-        )
+        return str(self.json)
 
 
 class VCardMessage(Message):
