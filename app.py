@@ -1,8 +1,37 @@
+import os
 import json
 import time
 import requests
+import qrcode
+import uuid
 from log import *
-from webwhatsapi import WhatsAPIDriver 
+from flask import Flask, request, render_template, send_from_directory, url_for
+from webwhatsapi import WhatsAPIDriver
+
+application = Flask(__name__, static_folder='templates')
+
+driver = None
+
+application.config['UPLOAD_FOLDER'] = 'templates/'
+
+@application.route('/index')
+def get_numbers():
+    global driver
+    contacts = request.args.get('contacts')
+    logging.info('Recieved contacts: {}'.format(contacts))
+    if contacts:
+        driver = WhatsAPIDriver(username="FRTNX", client='Chrome')
+        qr_string = driver.get_qr_plain()
+        if qr_string:
+            file_name = str(uuid.uuid4())
+            os.system('qr "{}" > templates/{}.png'.format(qr_string, file_name))
+            full_filename = os.path.join(application.config['UPLOAD_FOLDER'], '{}.png'.format(file_name))
+            return render_template("qrcode.html", user_image = full_filename)
+        else:
+            get_numbers()
+    else:
+        return 'No numbers sprecified'
+
 
 def run():
     driver = WhatsAPIDriver(username="FRTNX", client='Chrome')
@@ -13,7 +42,7 @@ def run():
     chat = None
     logging.info('finding dialogue of interest')
     for c in chats:
-        if '27600692788' in str(c):
+        if '27793644718' in str(c):
             chat = c
     logging.info('dialogue search complete. found %s' % chat)
     logging.info('loading all earlier messages')
@@ -47,8 +76,8 @@ def run():
     response = requests.post("https://bvjaygf3qd.execute-api.eu-west-1.amazonaws.com/dev/store", 
                              data=json.dumps(processed))
     logging.info('response code: %s\nresponse content: %s' % (response.status_code, response.content))
-    #return processed
 
 
 if __name__ == '__main__':
+    # application.run(host='0.0.0.0', debug=True)
     run()

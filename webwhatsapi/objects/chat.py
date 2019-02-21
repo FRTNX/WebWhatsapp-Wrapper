@@ -123,7 +123,7 @@ class GroupChat(Chat):
         return list(self.driver.group_get_admins(self.id))
 
     def __repr__(self):
-        safe_name = safe_str(self.name)
+        safe_name = 'Unknown Group Chat'
         return "<Group chat - {name}: {id}, {participants} participants>".format(
             name=safe_name,
             id=self.id,
