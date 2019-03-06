@@ -1,8 +1,10 @@
 import logging
+import requests
 import json
 import boto3
 
 s3 = boto3.resource('s3')
+ec2 = boto3.client('ec2')
 
 def get_qr(event, context):
     """Compares recieved numbers to previous saved numbers. Updates old numbers
@@ -20,7 +22,7 @@ def get_qr(event, context):
     }
 
     try:
-        obj = s3.Object('whatsapp-scraper-numbers', '{}.json'.format(event['user']))
+        obj = s3.Object('init-whatsapp-scraper-de-serverlessdeploymentbuck-10bk8g5vdrvks', '{}.json'.format(event['user']))
         try:
             stored_data = json.loads(obj.get()['Body'].read().decode('utf-8'))
         except Exception as e:
@@ -29,6 +31,7 @@ def get_qr(event, context):
 
         if stored_data['numbers'] == extracted_data:
             logging.info('no changes to numbers detected.')
+            res = 'No changes to data detected.'
         else:
             logging.info('changes detected in selected numbers. Updating...')
 
@@ -38,17 +41,30 @@ def get_qr(event, context):
 
             obj = json.dumps(new_numbers)
             data = str.encode(obj)
-            res = s3.Bucket('whatsapp-scraper-numbers').put_object(Key='{}.json'.format(event['user']), Body=data) 
+            res = s3.Bucket('init-whatsapp-scraper-de-serverlessdeploymentbuck-10bk8g5vdrvks').put_object(Key='{}.json'.format(event['user']), Body=data) 
             logging.info('successfully stored new file in s3.')
 
-        # get QR code from scraper here
-        # add qr string to lambda response body
-  
         body = {
             "message": str(res),
             "input": event,
             "extracted_data_type": str(type(extracted_data))
         }
+
+        response = ec2.describe_instances()
+        for instance in response['Reservations']:
+            if instance['Instances'][0]['InstanceId'] == 'i-09c74b1061346b11c':
+                if 'PublicIpAddress' in list(instance['Instances'][0]):
+                    instance_ip = instance['Instances'][0]['PublicIpAddress']
+                    request = requests.get('http://' + instance_ip + ':5000/index',
+                                           params={'contacts': event['data']})
+                    if request.status_code == 200:
+                        body['QRString'] == request.content
+                    else:
+                        body['error'] == request.content
+                else:
+                    body['error'] == 'AMI found but no public ip is assigned to it.'
+                break
+
 
     except Exception as e:
         body = {

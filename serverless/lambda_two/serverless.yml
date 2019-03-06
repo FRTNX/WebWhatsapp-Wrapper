@@ -19,27 +19,26 @@ service: get-qr-code # NOTE: update this with your service name
 
 provider:
   name: aws
-  runtime: python3.7
+  runtime: python3.6
 
 # you can overwrite defaults here
 #  stage: dev
 #  region: us-east-1
 
 # you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::init-whatsapp-scraper-de-serverlessdeploymentbuck-10bk8g5vdrvks"] ]  }
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:s3:::init-whatsapp-scraper-de-serverlessdeploymentbuck-10bk8g5vdrvks"
+            - "/*"
 
 # you can define service wide environment variables here
 #  environment:
@@ -57,6 +56,13 @@ provider:
 functions:
   get_qr:
     handler: handler.get_qr
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: false
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -102,3 +108,4 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+

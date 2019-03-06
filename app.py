@@ -1,40 +1,34 @@
+#!/usr/bin/python3
+
 import os
-import json
-import time
-import requests
-import qrcode
-import uuid
-from log import *
-from flask import Flask, request, render_template, send_from_directory, url_for
+# os.system('sudo pkill -f firefox')
+from flask import Flask, request
 from webwhatsapi import WhatsAPIDriver
 
-application = Flask(__name__, static_folder='templates')
+application = Flask(__name__)
 
 driver = None
-
-application.config['UPLOAD_FOLDER'] = 'templates/'
 
 @application.route('/index')
 def get_numbers():
     global driver
     contacts = request.args.get('contacts')
-    logging.info('Recieved contacts: {}'.format(contacts))
+    print('Recieved contacts: {}'.format(contacts))
     if contacts:
-        driver = WhatsAPIDriver(username="FRTNX", client='Chrome')
+        driver = WhatsAPIDriver(username="FRTNX", 
+                                client='Firefox', 
+                                headless=True)
         qr_string = driver.get_qr_plain()
-        if qr_string:
-            file_name = str(uuid.uuid4())
-            os.system('qr "{}" > templates/{}.png'.format(qr_string, file_name))
-            full_filename = os.path.join(application.config['UPLOAD_FOLDER'], '{}.png'.format(file_name))
-            return render_template("qrcode.html", user_image = full_filename)
-        else:
-            get_numbers()
+        return qr_string
     else:
         return 'No numbers sprecified'
 
+if __name__ == '__main__':
+    application.run(host='0.0.0.0')
 
+"""
 def run():
-    driver = WhatsAPIDriver(username="FRTNX", client='Chrome')
+    # driver = WhatsAPIDriver(username="FRTNX", client='Chrome', headless=True)
     time.sleep(15)
     logging.info('getting chats')
     chats = driver.get_all_chats()
@@ -76,8 +70,4 @@ def run():
     response = requests.post("https://bvjaygf3qd.execute-api.eu-west-1.amazonaws.com/dev/store", 
                              data=json.dumps(processed))
     logging.info('response code: %s\nresponse content: %s' % (response.status_code, response.content))
-
-
-if __name__ == '__main__':
-    # application.run(host='0.0.0.0', debug=True)
-    run()
+"""
