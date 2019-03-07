@@ -14,3 +14,5 @@ docs/_build
 .coverage
 .eggs
 *.sublime-*
+serverless/lambda_one/.serverless/
+serverless/lambda_two/.serverless/
