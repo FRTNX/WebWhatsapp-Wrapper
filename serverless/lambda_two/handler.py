@@ -56,15 +56,14 @@ def get_qr(event, context):
                 if 'PublicIpAddress' in list(instance['Instances'][0]):
                     instance_ip = instance['Instances'][0]['PublicIpAddress']
                     request = requests.get('http://' + instance_ip + ':5000/index',
-                                           params={'contacts': event['data']})
+                                           params={'contacts': json.dumps(event['data'])})
                     if request.status_code == 200:
-                        body['QRString'] == request.content
+                        body['QRString'] = request.content.decode('utf-8')
                     else:
-                        body['error'] == request.content
+                        body['error'] = request.content
                 else:
-                    body['error'] == 'AMI found but no public ip is assigned to it.'
+                    body['error'] = 'AMI found but no public ip is assigned to it.'
                 break
-
 
     except Exception as e:
         body = {

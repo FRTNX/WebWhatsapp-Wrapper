@@ -30,15 +30,14 @@ provider:
     - Effect: "Allow"
       Action:
         - "s3:*"
-      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::init-whatsapp-scraper-de-serverlessdeploymentbuck-10bk8g5vdrvks"] ]  }
     - Effect: "Allow"
       Action:
         - "s3:*"
       Resource:
         Fn::Join:
           - ""
-          - - "arn:aws:s3:::"
-            - "Ref" : "ServerlessDeploymentBucket"
+          - - "arn:aws:s3:::init-whatsapp-scraper-de-serverlessdeploymentbuck-10bk8g5vdrvks"
             - "/*"
 
 # you can define service wide environment variables here
@@ -57,6 +56,14 @@ provider:
 functions:
   initialise:
     handler: handler.initialise
+    events:
+      - http:
+          path: initialise
+          method: GET
+          request:
+            parameters:
+              querystrings:
+                user: true
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
