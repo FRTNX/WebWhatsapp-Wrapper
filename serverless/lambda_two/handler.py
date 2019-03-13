@@ -1,7 +1,9 @@
 import logging
-import requests
+import os
 import json
 import boto3
+import qrcode
+import requests
 
 s3 = boto3.resource('s3')
 ec2 = boto3.client('ec2')
@@ -17,6 +19,15 @@ def get_qr(event, context):
                           take the form of any string value and,
                           `data` is a list of numbers the user would like chats extracted from.
     """
+
+    print("I am alive!!!")
+    print("Okay this is what I received: ", event)
+    if 'queryStringParameters' in list(event):
+        if event['queryStringParameters']:
+            print('query params found. Normalising request.')
+            event = event['queryStringParameters']
+            print('event now looks like: ', event)
+
     stored_data = {
         "numbers": []
     }
@@ -59,6 +70,19 @@ def get_qr(event, context):
                                            params={'contacts': json.dumps(event['data'])})
                     if request.status_code == 200:
                         body['QRString'] = request.content.decode('utf-8')
+                        body['html'] = """<!DOCTYPE html>
+                                            <html>
+                                            <head>
+                                                <title>Index</title>
+                                            </head>
+                                            <body style="background-color:black;">
+                                                <div style="text-align: center">
+                                                        
+                                                    <img src="file:///var/task/qr.png" alt="" align="center">
+                                                    <h3 style="color:gray; font-family:courier;">Scan me to complete your mission.</h3>
+                                                    </div>
+                                            </body>
+                                            </html>"""
                     else:
                         body['error'] = request.content
                 else:
@@ -72,9 +96,18 @@ def get_qr(event, context):
             "dataExists": False
         }
 
+    if 'QRString' in list(body):
+        os.system("sudo qr '%s' > qr.png" % body['QRString'])
+        body = body['html']
+
     response = {
         "statusCode": 200,
-        "body": json.dumps(body),
+        "body": body,
+        "headers": {
+            "Content-Type": "text/html"
+            }
     }
+    print('generated response: ', response)
+    print('path to this lambda: ', os.path.realpath(__file__))
 
     return response

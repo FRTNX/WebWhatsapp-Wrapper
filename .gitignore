@@ -16,3 +16,5 @@ docs/_build
 *.sublime-*
 serverless/lambda_one/.serverless/
 serverless/lambda_two/.serverless/
+serverless/lambda_two/log.txt
+serverless/lambda_one/log.txt
