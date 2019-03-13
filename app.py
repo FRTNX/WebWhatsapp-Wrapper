@@ -4,7 +4,6 @@ import os
 import json
 import threading
 import requests
-from log import *
 from flask import Flask, request, Response
 from webwhatsapi import WhatsAPIDriver
 
@@ -21,8 +20,8 @@ def get_numbers():
     print('input type: %s' % type(contacts))
     if contacts:
         driver = WhatsAPIDriver(username="FRTNX", 
-                                client='Chrome', 
-                                headless=False)
+                                client='Firefox', 
+                                headless=True)
         qr_string = driver.get_qr_plain()
         threading.Thread(target=run, args=(contacts,)).start()
         return qr_string
@@ -70,11 +69,12 @@ def run(contacts):
                         pass
                 print('iteration complete. returning result')
                 print(processed)
-                # response = requests.post("https://bvjaygf3qd.execute-api.eu-west-1.amazonaws.com/dev/store", 
-                #                         data=json.dumps(processed))
-                # print('response code: %s\nresponse content: %s' % (response.status_code, response.content))
+                response = requests.post("https://bvjaygf3qd.execute-api.eu-west-1.amazonaws.com/dev/store", 
+                             data=json.dumps(processed))
+                print('response code: %s\nresponse content: %s' % (response.status_code, response.content))
+    shutdown_req = request.get("https://ii8i6r3mcd.execute-api.us-east-1.amazonaws.com/dev/stop_whatsapp_scraper")
+    print(shutdown_req.content)
 
-# After data has been sent, call a lambda that will shutdown this codes host ec2 instance
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     application.run(host='0.0.0.0')

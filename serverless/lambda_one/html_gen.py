@@ -59,11 +59,17 @@ template = """<!DOCTYPE html>
 
                 <form name="input_box">
                     <h1></h1>
-                    <input type="text" name="phonenumber-input">
+                    <input type="text" name="phonenumber-input" placeholder="enter number e.g 27842342354">
                     <input name="" type="button" value="Add">
-                    <input name="" type="button" value="Send">
+                    <input name="" type="button" value="Send" onclick="myFunction()">
                 </form>
 
+                <script>
+                        function myFunction() {{
+                            var x = document.getElementsByClassName("chip");
+                            alert("detected " + x.length + " numbers.");
+                        }}
+                </script>
                 </body>
                 </html>"""
 

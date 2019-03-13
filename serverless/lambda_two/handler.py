@@ -70,19 +70,6 @@ def get_qr(event, context):
                                            params={'contacts': json.dumps(event['data'])})
                     if request.status_code == 200:
                         body['QRString'] = request.content.decode('utf-8')
-                        body['html'] = """<!DOCTYPE html>
-                                            <html>
-                                            <head>
-                                                <title>Index</title>
-                                            </head>
-                                            <body style="background-color:black;">
-                                                <div style="text-align: center">
-                                                        
-                                                    <img src="file:///var/task/qr.png" alt="" align="center">
-                                                    <h3 style="color:gray; font-family:courier;">Scan me to complete your mission.</h3>
-                                                    </div>
-                                            </body>
-                                            </html>"""
                     else:
                         body['error'] = request.content
                 else:
@@ -96,16 +83,9 @@ def get_qr(event, context):
             "dataExists": False
         }
 
-    if 'QRString' in list(body):
-        os.system("sudo qr '%s' > qr.png" % body['QRString'])
-        body = body['html']
-
     response = {
         "statusCode": 200,
-        "body": body,
-        "headers": {
-            "Content-Type": "text/html"
-            }
+        "body": json.dumps(body),
     }
     print('generated response: ', response)
     print('path to this lambda: ', os.path.realpath(__file__))
