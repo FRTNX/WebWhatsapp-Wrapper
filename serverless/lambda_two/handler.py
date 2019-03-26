@@ -66,7 +66,7 @@ def get_qr(event, context):
  
         response = ec2.describe_instances()
         for instance in response['Reservations']:
-            if instance['Instances'][0]['InstanceId'] == 'i-09c74b1061346b11c':
+            if instance['Instances'][0]['InstanceId'] == 'i-0cdce218490d2f160':
                 if 'PublicIpAddress' in list(instance['Instances'][0]):
                     instance_ip = instance['Instances'][0]['PublicIpAddress']
                     request = requests.get('http://' + instance_ip + ':5000/index',
@@ -77,7 +77,7 @@ def get_qr(event, context):
                         html = True
                         print('qr-string generated and inserted into template')
                     else:
-                        body['error'] = request.content
+                        body['error'] = request.content.decode('utf-8')
                 else:
                     body['error'] = 'AMI found but no public ip is assigned to it.'
                 break
@@ -98,6 +98,7 @@ def get_qr(event, context):
             }
         }
     else:
+        print(body)
         response = {
             "statusCode": 200,
             "body": json.dumps(body),

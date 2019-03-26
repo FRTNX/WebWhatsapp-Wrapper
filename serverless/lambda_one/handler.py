@@ -47,7 +47,7 @@ def initialise(event, context):
 
     if body['dataExists']:
         try:
-            ec2.start_instances(InstanceIds=['i-09c74b1061346b11c'], DryRun=True)
+            ec2.start_instances(InstanceIds=['i-0cdce218490d2f160'], DryRun=True)
         except ClientError as e:
             print(e)
             body['Ec2Response'] = str(e)
@@ -56,7 +56,7 @@ def initialise(event, context):
 
         # Dry run succeeded, run start_instances without dryrun
         try:
-            response = ec2.start_instances(InstanceIds=['i-09c74b1061346b11c'], DryRun=False)
+            response = ec2.start_instances(InstanceIds=['i-0cdce218490d2f160'], DryRun=False)
             body['Ec2Response'] = response
             print('body after call to ec2 now looks like: ', body)
         except ClientError as e:

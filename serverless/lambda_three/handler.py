@@ -12,7 +12,7 @@ def stop_whatsapp_scraper(event, context):
         "input": event
     }
     try:
-        ec2.stop_instances(InstanceIds=['i-09c74b1061346b11c'], DryRun=True)
+        ec2.stop_instances(InstanceIds=['i-0cdce218490d2f160'], DryRun=True)
     except ClientError as e:
         print(e)
         if 'DryRunOperation' not in str(e):
@@ -20,7 +20,7 @@ def stop_whatsapp_scraper(event, context):
 
     # Dry run succeeded, run start_instances without dryrun
     try:
-        response = ec2.stop_instances(InstanceIds=['i-09c74b1061346b11c'], DryRun=False)
+        response = ec2.stop_instances(InstanceIds=['i-0cdce218490d2f160'], DryRun=False)
         print("Dry run successful. Here art the final results: ", response)
         body['message'] = response
     except ClientError as e:
