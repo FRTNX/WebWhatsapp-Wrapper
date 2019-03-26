@@ -41,8 +41,8 @@ provider:
             - "/*"
 
 # you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  environment:
+    WAS3Bucket: init-whatsapp-scraper-de-serverlessdeploymentbuck-10bk8g5vdrvks
 
 # you can add packaging information here
 #package:

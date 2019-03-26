@@ -1,3 +1,4 @@
+import os
 import json
 import boto3
 from html_gen import generate_chips
@@ -13,7 +14,6 @@ def initialise(event, context):
        params:
           event -> dict: format = {'user': 'user_x'}
     """
-    html = False
 
     print("I am alive!!! For some reason my creator made me mute")
     print("Okay this is what I received: ", event)
@@ -25,25 +25,25 @@ def initialise(event, context):
             print('event now looks like: ', event)
 
     try:
-        obj = s3.Object('init-whatsapp-scraper-de-serverlessdeploymentbuck-10bk8g5vdrvks', '{}.json'.format(event['user']))
+        obj = s3.Object(os.getenv('WAS3Bucket'), '{}.json'.format(event['user']))
         data = obj.get()['Body'].read().decode('utf-8')
         contacts = json.loads(data)
-        print('s3 get object successfully called.')
-        html_data = generate_chips(contacts['numbers'])
-        html = True
-        body = {
-            'message': html_data,
-            'input': event,
-            'dataExists': True
-        }
-        print('contructed body: ', body)
+        numbers = json.loads(contacts['numbers'])
+        print('User has pre-existing data: ', contacts)
+        print(numbers)
     except Exception as e:
-        body = {
-            "message": str(e),
-            "input": event,
-            "dataExists": False
-        }
-        print('Exception generated body: ', body)
+        print(e)
+        if 'NoSuchKey' in str(e):
+            print('new user detected')
+            numbers = []
+
+    html_data = generate_chips(event['user'], numbers)
+    body = {
+        'message': html_data,
+        'input': event,
+        'dataExists': True
+    }
+    print('contructed body: ', body)
 
     if body['dataExists']:
         try:
@@ -63,19 +63,13 @@ def initialise(event, context):
             print(e)
             body['Ec2Response'] = str(e)
 
-    if html:
-        response = {
-            "statusCode": 200,
-            "body": body["message"],
-            "headers": {
-                "Content-Type": "text/html"
-            }
+    response = {
+        "statusCode": 200,
+        "body": body["message"],
+        "headers": {
+            "Content-Type": "text/html"
         }
-    else:
-        response = {
-            "statusCode": 200,
-            "body": json.dumps(body)
-        }
+    }
     print('callback response: ', response)
 
     return response

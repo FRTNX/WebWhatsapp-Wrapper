@@ -4,6 +4,7 @@ import json
 import boto3
 import qrcode
 import requests
+from html_gen import generateQRImage
 
 s3 = boto3.resource('s3')
 ec2 = boto3.client('ec2')
@@ -33,7 +34,7 @@ def get_qr(event, context):
     }
 
     try:
-        obj = s3.Object('init-whatsapp-scraper-de-serverlessdeploymentbuck-10bk8g5vdrvks', '{}.json'.format(event['user']))
+        obj = s3.Object('WAS3Bucket', '{}.json'.format(event['user']))
         try:
             stored_data = json.loads(obj.get()['Body'].read().decode('utf-8'))
         except Exception as e:
@@ -61,6 +62,8 @@ def get_qr(event, context):
             "extracted_data_type": str(type(extracted_data))
         }
 
+        html = False
+ 
         response = ec2.describe_instances()
         for instance in response['Reservations']:
             if instance['Instances'][0]['InstanceId'] == 'i-09c74b1061346b11c':
@@ -70,6 +73,9 @@ def get_qr(event, context):
                                            params={'contacts': json.dumps(event['data'])})
                     if request.status_code == 200:
                         body['QRString'] = request.content.decode('utf-8')
+                        html_data = generateQRImage(body['QRString'])
+                        html = True
+                        print('qr-string generated and inserted into template')
                     else:
                         body['error'] = request.content
                 else:
@@ -83,10 +89,20 @@ def get_qr(event, context):
             "dataExists": False
         }
 
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(body),
-    }
+    if html:
+        response = {
+            "statusCode": 200,
+            "body": html_data,
+            "headers": {
+                "Content-Type": "text/html"
+            }
+        }
+    else:
+        response = {
+            "statusCode": 200,
+            "body": json.dumps(body),
+        }
+
     print('generated response: ', response)
     print('path to this lambda: ', os.path.realpath(__file__))
 
