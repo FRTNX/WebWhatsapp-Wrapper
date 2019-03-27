@@ -15,18 +15,21 @@ driver = None
 @application.route('/index')
 def get_numbers():
     global driver
+
     contacts_raw = request.args.get('contacts')
     print('Recieved contacts: {}'.format(contacts_raw), file=sys.stderr)
     contacts = json.loads(contacts_raw.replace('"', ''))
     print('input type: %s' % type(contacts), file=sys.stderr)
+
     if contacts:
         driver = WhatsAPIDriver(username="FRTNX", 
                                 client='Firefox', 
                                 headless=True)
         qr_string = driver.get_qr_plain()
+
         @copy_current_request_context
         def run(contacts):
-            # validate that contacts is of type list
+            # TODO: validate that contacts is of type list
             print('waiting for connection', file=sys.stderr)
             driver.wait_for_login()
             print('getting chats', file=sys.stderr)
@@ -72,6 +75,7 @@ def get_numbers():
                         # print('response code: %s\nresponse content: %s' % (response.status_code, response.content))
             shutdown_req = request.get("https://ii8i6r3mcd.execute-api.us-east-1.amazonaws.com/dev/stop_whatsapp_scraper")
             print(shutdown_req.content, file=sys.stderr)
+            
         threading.Thread(target=run, args=(contacts,)).start()
         return qr_string
     else:
