@@ -1,6 +1,7 @@
 template = """<!DOCTYPE html>
 				<html>
 					<head>
+					<title>Grassroot Whatsapp Utility</title>
 					<meta name="viewport" content="width=device-width, initial-scale=1">
 						<style>
 						.chip {{
@@ -59,7 +60,7 @@ template = """<!DOCTYPE html>
 
 				  <form name="input_box">
 				      <h1></h1>
-				      <input type="text" id="number-input" placeholder="enter number e.g 27842342354" pattern="^((?:27|27)|27)(=60|61|62|63|64|65|66|67|68|70|71|72|73|74|75|76|77|78|79|81|82|83|84|85|86|87)(\\d{{7}})$" required>
+				      <input type="text" id="number-input" placeholder="enter chat name e.g Jabu" required>
 				      <input name="" type="button" value="Add" onclick="generateChip()">
 				      <input id="send" type="button" value="Send" onclick="sendToServer()">
 				  </form>
@@ -67,9 +68,7 @@ template = """<!DOCTYPE html>
 				  <script>
               const generateChip = () => {{
                   var user_input = document.getElementById("number-input").value;
-                  let pattern = /^((?:27|27)|27)(=60|61|62|63|64|65|66|67|68|70|71|72|73|74|75|76|77|78|79|81|82|83|84|85|86|87)(\d{{7}})$/;
-                  var is_valid = pattern.test(user_input);
-                  if (is_valid) {{
+                  if (user_input != '') {{
                       var space = document.createElement("p");
                       document.body.appendChild(space);
                       var new_chip = document.createElement("div");
@@ -92,21 +91,45 @@ template = """<!DOCTYPE html>
 				            for (x=0; x < chip_values.length; x++) {{
                         if (chip_values[x].textContent != '') {{
 				                    numbers.push(chip_values[x].textContent
-				                     .replace(/[\\n\\r]+|[\\s]{{2,}}/g, ' ').replace(/\\D/g, '').trim());
+				                     .replace(/[\\n\\r\\ufffd]+|[\\s]{{2,}}/g, ' ').replace(/^[a-z\\d\\-_\\s]+$/i,'').trim());
 												}}
 				            }};
 										if (numbers.length > 0) {{
 												let div = document.getElementById("user_id");
 												let user_id = div.getAttribute("data-user-id");
 												let base_path = "https://wppfmzs7bd.execute-api.us-east-1.amazonaws.com/dev/get_qr?";
-												let path_params = `user=${{user_id}}&data=[${{numbers}}]`;
+                        let arr_numbers = encodeURIComponent(JSON.stringify(numbers));
+                        let path_params = `user=${{user_id}}&data=${{arr_numbers}}`;
 												alert(base_path + path_params);
-												location.href = base_path + path_params;
+												sendIfReady(base_path + path_params);
 										}}
 										else {{
 											  alert('Please enter at least one number to be processed.');
 										}};
 				        }};
+
+								function sendIfReady(url) {{
+										var xhttp = new XMLHttpRequest();
+										xhttp.onreadystatechange = function() {{
+												if (this.readyState == 4 && this.status == 200) {{
+														var obj = JSON.parse(this.responseText)
+														var state = obj.message
+														if (state == 'running') {{
+								                var i = 0;
+                                var start = new Date().getTime() + 12000;
+                                while (new Date().getTime() < start) {{
+                                    i++;
+                                }};
+																location.href = url;
+														}}
+														else {{
+																alert('Machine instance is not ready. Please try again in 30 seconds.');
+														}}
+												}}
+									}};
+                xhttp.open("GET", "https://iui8t6rmye.execute-api.us-east-1.amazonaws.com/dev/check_ec2_status");
+                xhttp.send();
+              }};
 				  </script>
 
 				</body>

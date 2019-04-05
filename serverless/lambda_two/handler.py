@@ -68,8 +68,10 @@ def get_qr(event, context):
         for instance in response['Reservations']:
             if instance['Instances'][0]['InstanceId'] == 'i-0cdce218490d2f160':
                 if 'PublicIpAddress' in list(instance['Instances'][0]):
-                    instance_ip = instance['Instances'][0]['PublicIpAddress']
-                    request = requests.get('http://' + instance_ip + ':5000/index',
+                    # instance_ip = instance['Instances'][0]['PublicIpAddress']
+                    instance_ip = "35a648c6.ngrok.io"
+                    #request = requests.get('http://' + instance_ip + ':5000/index',
+                    request = requests.get('http://' + instance_ip + '/index',
                                            params={'contacts': json.dumps(event['data'])})
                     if request.status_code == 200:
                         body['QRString'] = request.content.decode('utf-8')
