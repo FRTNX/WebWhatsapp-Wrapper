@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: get-qr-code # NOTE: update this with your service name
+service: my-service # NOTE: update this with your service name
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -19,11 +19,11 @@ service: get-qr-code # NOTE: update this with your service name
 
 provider:
   name: aws
-  runtime: python3.6
+  runtime: nodejs8.10
 
 # you can overwrite defaults here
-  environment:
-    WAS3Bucket: init-whatsapp-scraper-de-serverlessdeploymentbuck-10bk8g5vdrvks
+#  stage: dev
+#  region: us-east-1
 
 # you can add statements to the Lambda function's IAM Role here
   iamRoleStatements:
@@ -41,30 +41,29 @@ provider:
             - "/*"
 
 # you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  environment:
+    WAS3Bucket: init-whatsapp-scraper-de-serverlessdeploymentbuck-10bk8g5vdrvks
 
 # you can add packaging information here
 #package:
 #  include:
-#    - include-me.py
+#    - include-me.js
 #    - include-me-dir/**
 #  exclude:
-#    - exclude-me.py
+#    - exclude-me.js
 #    - exclude-me-dir/**
 
 functions:
-  get_qr:
-    handler: handler.get_qr
+  initialise:
+    handler: handler.initialise
     events:
-      - http: GET get_qr
-
-plugins:
-  - serverless-python-requirements
-
-custom:
-  pythonRequirements:
-    dockerizePip: false
+      - http:
+          path: initialise
+          method: GET
+          request:
+            parameters:
+              querystrings:
+                user: true
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -73,6 +72,7 @@ custom:
 #      - http:
 #          path: users/create
 #          method: get
+#      - websocket: $connect
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic
@@ -110,4 +110,3 @@ custom:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
-

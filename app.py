@@ -7,9 +7,6 @@ import threading
 import requests
 from flask import Flask, request, Response, copy_current_request_context
 from webwhatsapi import WhatsAPIDriver
-from phonenumbers.phonenumberutil import number_type
-from phonenumbers import carrier
-import phonenumbers
 
 application = Flask(__name__)
 
@@ -50,7 +47,7 @@ def get_numbers():
                             message_json = messages[0].get_js_obj()
                             chat_name = message_json['chat']['name']
                             print('comparing %s and %s' % (contact, chat_name), file=sys.stderr)
-                            if contact.lower().strip() == chat_name.lower().strip():
+                            if contact.lower().strip().replace(' ', '') == chat_name.lower().strip().replace(' ', ''):
                                 chat = c
                                 print('dialogue search complete. found %s' % chat, file=sys.stderr)
                                 print('loading all earlier messages', file=sys.stderr)
@@ -105,4 +102,4 @@ def get_numbers():
 
 
 if __name__ == "__main__":
-    application.run()
+    application.run(host="0.0.0.0")

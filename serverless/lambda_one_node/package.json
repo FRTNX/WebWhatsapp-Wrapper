@@ -1,0 +1,14 @@
+{
+  "name": "Whatsapp-Scraper-Initialser",
+  "version": "1.0.0",
+  "description": "Lambda for initialising EC2 instance and retrieving previous user contacts from s3",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "FRTNX",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.213.1",
+  }
+}
